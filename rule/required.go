@@ -42,13 +42,12 @@ func required(data *value.Data, fieldName Field, argStr string) (res *CheckError
 		}
 
 		switch reflect.TypeOf(v).Kind() {
-		case reflect.Slice | reflect.Array | reflect.Map | reflect.Struct:
+		case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct:
 			if reflect.ValueOf(v).IsZero() {
 				//空数组或者空的对象
 				return Error("", fieldName, v, "")
 			}
 		default:
-			return
 		}
 	}
 	return
