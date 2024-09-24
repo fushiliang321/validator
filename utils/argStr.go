@@ -78,7 +78,7 @@ func FieldEqValue(data *value.Data, argStr string) bool {
 		anotherField = args[i]
 		i++
 		if i >= _len {
-			continue
+			return false
 		}
 		anotherFieldValue = args[i]
 		values, ok = data.Get(anotherField)
