@@ -112,7 +112,7 @@ func FieldEqValue(data *value.Data, argStr string) bool {
 
 func IsNumber(v interface{}) bool {
 	switch v.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+	case float64, float32, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return true
 	default:
 		return false
@@ -121,6 +121,10 @@ func IsNumber(v interface{}) bool {
 
 func AnyToFloat64(i any) (float64, error) {
 	switch raw := i.(type) {
+	case float64:
+		return raw, nil
+	case float32:
+		return float64(raw), nil
 	case int:
 		return float64(raw), nil
 	case int8:
@@ -141,10 +145,6 @@ func AnyToFloat64(i any) (float64, error) {
 		return float64(raw), nil
 	case uint64:
 		return float64(raw), nil
-	case float32:
-		return float64(raw), nil
-	case float64:
-		return raw, nil
 	default:
 		return 0, errors.New("not a number")
 	}

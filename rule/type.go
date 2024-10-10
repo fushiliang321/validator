@@ -58,11 +58,11 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 
 	for _, _value = range values {
 		switch _value.(type) {
-		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		case float64, float32:
 			if strings.IndexAny(fmt.Sprint(_value), ".") != -1 {
 				return Error("", fieldName, _value, "")
 			}
+		case uint64, uint32, int, int8, int16, int32, int64, uint, uint8, uint16:
 		default:
 			return Error("", fieldName, _value, "")
 		}

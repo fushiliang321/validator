@@ -398,6 +398,16 @@ func between(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 
 	for _, _value = range values {
 		switch _v := _value.(type) {
+		case float64:
+			if _v > float64(maxI) || _v < float64(minI) {
+				return Error("", fieldName, _value, "")
+			}
+			continue
+		case float32:
+			if _v > float32(maxI) || _v < float32(minI) {
+				return Error("", fieldName, _value, "")
+			}
+			continue
 		case int:
 			v = _v
 		case int8:
@@ -418,16 +428,6 @@ func between(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 			v = int(_v)
 		case uint64:
 			v = int(_v)
-		case float64:
-			if _v > float64(maxI) || _v < float64(minI) {
-				return Error("", fieldName, _value, "")
-			}
-			continue
-		case float32:
-			if _v > float32(maxI) || _v < float32(minI) {
-				return Error("", fieldName, _value, "")
-			}
-			continue
 		default:
 			v, ok = func() (int, bool) {
 				defer func() {
@@ -628,6 +628,10 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 
 	for _, _value = range values {
 		switch v := _value.(type) {
+		case float64:
+			valueFloat64 = v
+		case float32:
+			valueFloat64 = float64(v)
 		case int:
 			if minLen == 0 {
 				return
@@ -668,10 +672,6 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return
 			}
 			valueFloat64 = float64(v)
-		case float32:
-			valueFloat64 = float64(v)
-		case float64:
-			valueFloat64 = v
 		default:
 			return Error("", fieldName, _value, "")
 		}
