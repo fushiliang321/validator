@@ -95,10 +95,11 @@ func _url(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 			if err != nil {
 				return Error("", fieldName, v, "")
 			}
-			if u.Scheme == "" {
-				return Error("", fieldName, v, "")
-			}
-			if u.Scheme != argStr {
+			if argStr == "" {
+				if u.Scheme == "" {
+					return Error("", fieldName, v, "")
+				}
+			} else if u.Scheme != argStr {
 				return Error("", fieldName, v, "")
 			}
 		default:
