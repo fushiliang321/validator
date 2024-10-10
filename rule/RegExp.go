@@ -36,14 +36,14 @@ func alpha(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 	return regExpBase(data, fieldName, regExp.Alpha)
 }
 
-// 验证字段可以包含字母(包含中文)和数字，以及破折号和下划线
-func alphaDash(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
-	return regExpBase(data, fieldName, regExp.AlphaDash)
+// 验证字段可以包含字母(包含中文)和数字
+func alphaNum(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
+	return regExpBase(data, fieldName, regExp.AlphaNum)
 }
 
 // 验证字段可以包含字母(包含中文)和数字，以及破折号和下划线
-func alphaNum(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
-	return regExpBase(data, fieldName, regExp.AlphaNum)
+func alphaDash(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
+	return regExpBase(data, fieldName, regExp.AlphaDash)
 }
 
 // 正在验证的字段是否完全是 7 位的 ASCII 字符
@@ -76,5 +76,4 @@ func regex(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 		return
 	}
 	return regExpBase(data, fieldName, re)
-
 }
