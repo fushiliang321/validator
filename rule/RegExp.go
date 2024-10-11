@@ -5,13 +5,13 @@ import (
 	"github.com/fushiliang321/validator/rule/regExp"
 	"github.com/fushiliang321/validator/value"
 	"regexp"
+	"strings"
 )
 
 func init() {
 	Register("alpha", alpha)
 	Register("alpha_dash", alphaDash)
 	Register("alpha_num", alphaNum)
-	Register("ascii", ascii)
 	Register("mac_address", macAddress)
 	Register("email", email)
 	Register("phone", phone)
@@ -46,11 +46,6 @@ func alphaDash(data *value.Data, fieldName Field, argStr string) (res *CheckErro
 	return regExpBase(data, fieldName, regExp.AlphaDash)
 }
 
-// 正在验证的字段是否完全是 7 位的 ASCII 字符
-func ascii(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
-	return regExpBase(data, fieldName, regExp.Ascii)
-}
-
 // 验证的字段是否是一个 MAC 地址
 func macAddress(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 	return regExpBase(data, fieldName, regExp.MacAddress)
@@ -70,6 +65,28 @@ func phone(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 func regex(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 	if argStr == "" {
 		return
+	}
+	if argStr[0] == '/' {
+		//转为go支持的修饰符格式
+		last := strings.LastIndexByte(argStr, '/')
+		if last > 0 {
+			var flags string
+			for i := last + 1; i < len(argStr); i++ {
+				switch argStr[i] {
+				case 'i':
+					flags += "i"
+				case 'm':
+					flags += "m"
+				case 's':
+					flags += "s"
+				}
+			}
+			if flags != "" {
+				argStr = "(?" + flags + ")" + argStr[1:last]
+			} else {
+				argStr = argStr[1:last]
+			}
+		}
 	}
 	re, err := regexp.Compile(argStr)
 	if err != nil {
