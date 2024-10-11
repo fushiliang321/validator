@@ -392,7 +392,7 @@ func between(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		maxI, _ = strconv.Atoi(args[1])
 		v       int
 	)
-	if minI >= maxI {
+	if minI > maxI {
 		return
 	}
 
