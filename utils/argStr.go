@@ -213,8 +213,9 @@ func StrToTime(str string) (time.Time, error) {
 			return date, nil // 找到匹配的格式，返回解析后的时间
 		}
 	}
-	args := strings.Split(str, ",")
+	var args = strings.Split(str, ",")
 	if len(args) == 3 {
+		//当前时间基础上加减
 		//years,months,days
 		var (
 			year, _  = strconv2.Atoi(args[0])
@@ -223,9 +224,7 @@ func StrToTime(str string) (time.Time, error) {
 		)
 		return time.Now().AddDate(year, month, day), nil
 	}
-	var (
-		_time = time.Now()
-	)
+	var _time = time.Now()
 	switch args[0] {
 	case "now": //当前
 		return _time, nil
