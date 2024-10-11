@@ -225,7 +225,7 @@ func StrToTime(str string) (time.Time, error) {
 		return time.Now().AddDate(year, month, day), nil
 	}
 	var _time = time.Now()
-	switch args[0] {
+	switch str {
 	case "now": //当前
 		return _time, nil
 	case "today": //今天
