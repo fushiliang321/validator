@@ -145,9 +145,13 @@ func AnyToFloat64(i any) (float64, error) {
 		return float64(raw), nil
 	case uint64:
 		return float64(raw), nil
-	default:
-		return 0, errors.New("not a number")
+	case string:
+		i, err := strconv2.Atoi(raw)
+		if err == nil {
+			return float64(i), nil
+		}
 	}
+	return 0, errors.New("not a number")
 }
 
 var replacements = map[string]string{
