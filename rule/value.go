@@ -428,6 +428,14 @@ func between(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 			v = int(_v)
 		case uint64:
 			v = int(_v)
+		case json2.Number:
+			v, err := _v.Float64()
+			if err != nil {
+				return Error("", fieldName, _value, "")
+			}
+			if v > float64(maxI) || v < float64(minI) {
+				return Error("", fieldName, _value, "")
+			}
 		default:
 			v, ok = func() (int, bool) {
 				defer func() {
@@ -628,6 +636,11 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 
 	for _, _value = range values {
 		switch v := _value.(type) {
+		case json2.Number:
+			valueFloat64, err = v.Float64()
+			if err != nil {
+				return Error("", fieldName, _value, "")
+			}
 		case float64:
 			valueFloat64 = v
 		case float32:

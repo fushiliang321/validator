@@ -112,7 +112,7 @@ func FieldEqValue(data *value.Data, argStr string) bool {
 
 func IsNumber(v interface{}) bool {
 	switch v.(type) {
-	case float64, float32, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case float64, float32, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, json.Number:
 		return true
 	default:
 		return false
@@ -145,6 +145,8 @@ func AnyToFloat64(i any) (float64, error) {
 		return float64(raw), nil
 	case uint64:
 		return float64(raw), nil
+	case json.Number:
+		return raw.Float64()
 	case string:
 		i, err := strconv2.Atoi(raw)
 		if err == nil {

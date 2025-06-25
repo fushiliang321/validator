@@ -1,6 +1,7 @@
 package rule
 
 import (
+	json2 "encoding/json"
 	"fmt"
 	"github.com/fushiliang321/validator/utils"
 	"github.com/fushiliang321/validator/value"
@@ -63,6 +64,11 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return Error("", fieldName, _value, "")
 			}
 		case uint64, uint32, int, int8, int16, int32, int64, uint, uint8, uint16:
+		case json2.Number:
+			_v := _value.(json2.Number)
+			if strings.IndexAny(_v.String(), ".") != -1 {
+				return Error("", fieldName, _value, "")
+			}
 		default:
 			return Error("", fieldName, _value, "")
 		}
