@@ -48,21 +48,21 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		case 1:
 			minLen, err = strconv.Atoi(args[0])
 			if err != nil {
-				return Error("", fieldName, _value, "")
+				return Error("", fieldName, values[0], "")
 			}
 			maxLen = minLen
 			isVerifyLen = true
 		default:
 			minLen, err = strconv.Atoi(args[0])
 			if err != nil {
-				return Error("", fieldName, _value, "")
+				return Error("", fieldName, values[0], "")
 			}
 			maxLen, err = strconv.Atoi(args[1])
 			if err != nil {
-				return Error("", fieldName, _value, "")
+				return Error("", fieldName, values[0], "")
 			}
 			if minLen > maxLen {
-				return Error("", fieldName, _value, "")
+				return Error("", fieldName, values[0], "")
 			}
 			isVerifyLen = true
 		}
@@ -155,7 +155,7 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return
 			}
 			if minLen > maxLen {
-				return Error("", fieldName, _value, "")
+				return Error("", fieldName, values[0], "")
 			}
 			isVerifyLen = true
 		}

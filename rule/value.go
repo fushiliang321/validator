@@ -305,15 +305,15 @@ func timeCompare(data *value.Data, fieldName Field, argStr string, _func func(va
 				if v2Str, ok := v2.(string); ok {
 					t, err = utils.StrToTime(v2Str)
 					if err != nil {
-						return Error("", fieldName, _value, "")
+						return Error("", fieldName, values[0], "")
 					}
 					timeArr = append(timeArr, t)
 				} else {
-					return Error("", fieldName, _value, "")
+					return Error("", fieldName, values[0], "")
 				}
 			}
 		} else {
-			return Error("", fieldName, _value, "")
+			return Error("", fieldName, values[0], "")
 		}
 	} else {
 		timeArr = append(timeArr, t)
@@ -583,7 +583,7 @@ func confirmed(data *value.Data, fieldName Field, argStr string) (res *CheckErro
 
 	matchValues, ok := data.Get(matchField)
 	if !ok {
-		return Error("", fieldName, _value, "")
+		return Error("", fieldName, values[0], "")
 	}
 
 	for _, _value = range values {
@@ -607,7 +607,7 @@ func in(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 		return
 	}
 	if argStr == "" {
-		return Error("", fieldName, _value, "")
+		return Error("", fieldName, values[0], "")
 	}
 	var (
 		args     = strings.Split(argStr, ",")
