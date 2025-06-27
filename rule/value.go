@@ -473,7 +473,7 @@ func compare(data *value.Data, fieldName Field, argStr string, _func func(v1, v2
 			valueLen float64
 		)
 		for _, _value = range values {
-			valueLen, err = utils.AnyToFloat64(_value)
+			valueLen, err = utils.AnyToFloat64(_value, false)
 			if err != nil {
 				//比较长度
 				valueLen, ok = func() (float64, bool) {
@@ -498,10 +498,10 @@ func compare(data *value.Data, fieldName Field, argStr string, _func func(v1, v2
 		}
 		for _, _value = range values {
 			for _, argValue := range argValues {
-				v1, err := utils.AnyToFloat64(_value)
+				v1, err := utils.AnyToFloat64(_value, false)
 				if err == nil {
 					//比较数值大小
-					v2, err := utils.AnyToFloat64(argValue)
+					v2, err := utils.AnyToFloat64(argValue, false)
 					if err != nil || !_func(v1, v2) {
 						return Error("", fieldName, _value, "")
 					}
@@ -593,117 +593,6 @@ func confirmed(data *value.Data, fieldName Field, argStr string) (res *CheckErro
 			}
 		}
 	}
-	return
-}
-
-// 验证字段必须是数值类型，并且必须包含指定的小数位数
-func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
-	var (
-		values, ok                 = data.Get(fieldName)
-		_value                     any
-		minLen, maxLen, decimalLen int
-		err                        error
-		valueFloat64               float64
-		str                        string
-		strArr                     []string
-	)
-	if !ok {
-		return
-	}
-
-	if argStr != "" {
-		args := strings.Split(argStr, ",")
-		if len(args) > 1 {
-			minLen, err = strconv.Atoi(args[0])
-			if err != nil {
-				return
-			}
-			maxLen, err = strconv.Atoi(args[1])
-			if err != nil {
-				return
-			}
-		} else {
-			minLen, err = strconv.Atoi(args[0])
-			if err != nil {
-				return
-			}
-			maxLen = minLen
-		}
-		if minLen > maxLen {
-			return Error("", fieldName, _value, "")
-		}
-	}
-
-	for _, _value = range values {
-		switch v := _value.(type) {
-		case json2.Number:
-			valueFloat64, err = v.Float64()
-			if err != nil {
-				return Error("", fieldName, _value, "")
-			}
-		case float64:
-			valueFloat64 = v
-		case float32:
-			valueFloat64 = float64(v)
-		case int:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case uint:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case int8:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case uint8:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case int32:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case uint32:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case int64:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		case uint64:
-			if minLen == 0 {
-				return
-			}
-			valueFloat64 = float64(v)
-		default:
-			return Error("", fieldName, _value, "")
-		}
-
-		str = strconv.FormatFloat(valueFloat64, 'g', -1, 64)
-		strArr = strings.Split(str, ".")
-		if len(strArr) > 1 {
-			decimalLen = len(strArr[1])
-			if decimalLen < minLen || decimalLen > maxLen {
-				return Error("", fieldName, _value, "")
-			}
-		} else {
-			//没有小数部分
-			if minLen > 0 {
-				return Error("", fieldName, _value, "")
-			}
-		}
-	}
-
 	return
 }
 

@@ -119,7 +119,7 @@ func IsNumber(v interface{}) bool {
 	}
 }
 
-func AnyToFloat64(i any) (float64, error) {
+func AnyToFloat64(i any, isStrict bool) (float64, error) {
 	switch raw := i.(type) {
 	case float64:
 		return raw, nil
@@ -146,11 +146,23 @@ func AnyToFloat64(i any) (float64, error) {
 	case uint64:
 		return float64(raw), nil
 	case json.Number:
-		return raw.Float64()
-	case string:
-		i, err := strconv2.Atoi(raw)
+		f, err := raw.Float64()
 		if err == nil {
-			return float64(i), nil
+			return f, nil
+		}
+	case string:
+		if !isStrict {
+			i, err := strconv2.ParseFloat(raw, 64)
+			if err == nil {
+				return i, nil
+			}
+		}
+	default:
+		if !isStrict {
+			i, err := strconv2.ParseFloat(fmt.Sprintf("%v", raw), 64)
+			if err == nil {
+				return i, nil
+			}
 		}
 	}
 	return 0, errors.New("not a number")

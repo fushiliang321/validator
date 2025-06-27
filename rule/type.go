@@ -26,8 +26,10 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 	var (
 		values, ok               = data.Get(fieldName)
 		_value                   any
+		valueStr                 string
 		minLen, maxLen, valueLen int
 		err                      error
+		isStrict                 = false
 	)
 	if !ok {
 		return
@@ -35,8 +37,20 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 
 	if argStr != "" {
 		args := strings.Split(argStr, ",")
-
-		if len(args) > 1 {
+		if args[0] == "strict" {
+			//严格模式
+			isStrict = true
+			args = args[1:]
+		}
+		switch len(args) {
+		case 0:
+		case 1:
+			minLen, err = strconv.Atoi(args[0])
+			if err != nil {
+				return Error("", fieldName, _value, "")
+			}
+			maxLen = minLen
+		default:
 			minLen, err = strconv.Atoi(args[0])
 			if err != nil {
 				return Error("", fieldName, _value, "")
@@ -48,26 +62,39 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 			if minLen > maxLen {
 				return Error("", fieldName, _value, "")
 			}
-		} else {
-			minLen, err = strconv.Atoi(args[0])
-			if err != nil {
-				return Error("", fieldName, _value, "")
-			}
-			maxLen = minLen
+
 		}
 	}
 
 	for _, _value = range values {
 		switch _value.(type) {
 		case float64, float32:
-			if strings.IndexAny(fmt.Sprint(_value), ".") != -1 {
+			if isStrict {
+				return Error("", fieldName, _value, "")
+			}
+			valueStr = fmt.Sprint(_value)
+			if strings.IndexAny(valueStr, ".") != -1 {
 				return Error("", fieldName, _value, "")
 			}
 		case uint64, uint32, int, int8, int16, int32, int64, uint, uint8, uint16:
+			valueStr = fmt.Sprint(_value)
 		case json2.Number:
-			_v := _value.(json2.Number)
-			if strings.IndexAny(_v.String(), ".") != -1 {
-				return Error("", fieldName, _value, "")
+			var v any
+			if isStrict {
+				v, err = _value.(json2.Number).Int64()
+				if err != nil {
+					return Error("", fieldName, _value, "")
+				}
+				valueStr = fmt.Sprint(v)
+			} else {
+				v, err = _value.(json2.Number).Float64()
+				if err != nil {
+					return Error("", fieldName, _value, "")
+				}
+				valueStr = fmt.Sprint(v)
+				if strings.IndexAny(valueStr, ".") != -1 {
+					return Error("", fieldName, _value, "")
+				}
 			}
 		default:
 			return Error("", fieldName, _value, "")
@@ -75,9 +102,86 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		if argStr == "" {
 			continue
 		}
-		valueLen = len(fmt.Sprintf("%v", _value))
+		valueLen = len(valueStr)
 		if valueLen < minLen || valueLen > maxLen {
 			return Error("", fieldName, _value, "")
+		}
+	}
+	return
+}
+
+// 验证字段必须是数值类型，并且必须包含指定的小数位数
+func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
+	var (
+		values, ok                 = data.Get(fieldName)
+		_value                     any
+		minLen, maxLen, decimalLen int
+		err                        error
+		valueFloat64               float64
+		str                        string
+		strArr                     []string
+		isStrict                   = false
+	)
+	if !ok {
+		return
+	}
+
+	if argStr != "" {
+		args := strings.Split(argStr, ",")
+		if args[0] == "strict" {
+			//严格模式
+			isStrict = true
+			args = args[1:]
+		}
+		switch len(args) {
+		case 0:
+		case 1:
+			minLen, err = strconv.Atoi(args[0])
+			if err != nil {
+				return
+			}
+			maxLen = minLen
+		default:
+			minLen, err = strconv.Atoi(args[0])
+			if err != nil {
+				return
+			}
+			maxLen, err = strconv.Atoi(args[1])
+			if err != nil {
+				return
+			}
+			if minLen > maxLen {
+				return Error("", fieldName, _value, "")
+			}
+		}
+	}
+
+	for _, _value = range values {
+		if minLen > 0 {
+			switch _value.(type) {
+			case float64, float32, json2.Number:
+				//minLen > 0的时候只有浮点型才能通过验证，整型转换后小数位只会为0
+			default:
+				return Error("", fieldName, _value, "")
+			}
+		}
+		valueFloat64, err = utils.AnyToFloat64(_value, isStrict)
+		if err != nil {
+			return Error("", fieldName, _value, "")
+		}
+
+		str = strconv.FormatFloat(valueFloat64, 'f', -1, 64)
+		strArr = strings.Split(str, ".")
+		if len(strArr) > 1 {
+			decimalLen = len(strArr[1])
+			if decimalLen < minLen || decimalLen > maxLen {
+				return Error("", fieldName, _value, "")
+			}
+		} else {
+			//没有小数部分
+			if minLen > 0 {
+				return Error("", fieldName, _value, "")
+			}
 		}
 	}
 	return
