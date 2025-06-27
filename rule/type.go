@@ -30,6 +30,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		minLen, maxLen, valueLen int
 		err                      error
 		isStrict                 = false
+		isVerifyLen              = false //是否验证长度
 	)
 	if !ok {
 		return
@@ -50,6 +51,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return Error("", fieldName, _value, "")
 			}
 			maxLen = minLen
+			isVerifyLen = true
 		default:
 			minLen, err = strconv.Atoi(args[0])
 			if err != nil {
@@ -62,7 +64,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 			if minLen > maxLen {
 				return Error("", fieldName, _value, "")
 			}
-
+			isVerifyLen = true
 		}
 	}
 
@@ -99,7 +101,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		default:
 			return Error("", fieldName, _value, "")
 		}
-		if argStr == "" {
+		if !isVerifyLen {
 			continue
 		}
 		valueLen = len(valueStr)
@@ -121,6 +123,7 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		str                        string
 		strArr                     []string
 		isStrict                   = false
+		isVerifyLen                = false //是否验证小数位数
 	)
 	if !ok {
 		return
@@ -141,6 +144,7 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return
 			}
 			maxLen = minLen
+			isVerifyLen = true
 		default:
 			minLen, err = strconv.Atoi(args[0])
 			if err != nil {
@@ -153,6 +157,7 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 			if minLen > maxLen {
 				return Error("", fieldName, _value, "")
 			}
+			isVerifyLen = true
 		}
 	}
 
@@ -168,6 +173,10 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 		valueFloat64, err = utils.AnyToFloat64(_value, isStrict)
 		if err != nil {
 			return Error("", fieldName, _value, "")
+		}
+
+		if !isVerifyLen {
+			continue
 		}
 
 		str = strconv.FormatFloat(valueFloat64, 'f', -1, 64)
