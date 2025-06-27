@@ -20,7 +20,7 @@ func init() {
 	Register("object", object)
 }
 
-// 验证字段必须是整型
+// 验证字段是否为整型（值可以是整型/整型字符串，strict模式值必须为整型）
 // argStr存在且为数字时验证字段长度必须为argStr指定的长度值
 func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 	var (
@@ -98,8 +98,24 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 					return Error("", fieldName, _value, "")
 				}
 			}
+		case string:
+			if isStrict {
+				return Error("", fieldName, _value, "")
+			}
+			i, err := strconv.Atoi(_value.(string))
+			if err == nil {
+				return Error("", fieldName, _value, "")
+			}
+			valueStr = fmt.Sprint(i)
 		default:
-			return Error("", fieldName, _value, "")
+			if isStrict {
+				return Error("", fieldName, _value, "")
+			}
+			i, err := strconv.Atoi(fmt.Sprintf("%v", _value))
+			if err == nil {
+				return Error("", fieldName, _value, "")
+			}
+			valueStr = fmt.Sprint(i)
 		}
 		if !isVerifyLen {
 			continue
@@ -112,7 +128,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 	return
 }
 
-// 验证字段必须是数值类型，并且必须包含指定的小数位数
+// 验证字段是否是数值类型（可以为数值/数值字符串，strict模式必须为数值类型），并且必须包含指定的小数位数；
 func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError) {
 	var (
 		values, ok                 = data.Get(fieldName)
@@ -164,7 +180,7 @@ func decimal(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 	for _, _value = range values {
 		if minLen > 0 {
 			switch _value.(type) {
-			case float64, float32, json2.Number:
+			case float64, float32, json2.Number, string:
 				//minLen > 0的时候只有浮点型才能通过验证，整型转换后小数位只会为0
 			default:
 				return Error("", fieldName, _value, "")
