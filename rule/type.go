@@ -103,7 +103,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return Error("", fieldName, _value, "")
 			}
 			i, err := strconv.Atoi(_value.(string))
-			if err == nil {
+			if err != nil {
 				return Error("", fieldName, _value, "")
 			}
 			valueStr = fmt.Sprint(i)
@@ -112,7 +112,7 @@ func integer(data *value.Data, fieldName Field, argStr string) (res *CheckError)
 				return Error("", fieldName, _value, "")
 			}
 			i, err := strconv.Atoi(fmt.Sprintf("%v", _value))
-			if err == nil {
+			if err != nil {
 				return Error("", fieldName, _value, "")
 			}
 			valueStr = fmt.Sprint(i)
